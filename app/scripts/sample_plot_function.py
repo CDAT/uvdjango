@@ -3,8 +3,9 @@ import vcs
 x=vcs.init()
 import sys
 from django.utils import simplejson
+import os
 
-outpth = "/home/elo/uvcdat_live/app/media/"
+outpth = "app/media/"
 def plotBoxfill(file,var,selection,lev1=None,lev2=None):
     f=cdms2.open(file)
     s=f(var,**selection)
@@ -20,7 +21,7 @@ def plotBoxfill(file,var,selection,lev1=None,lev2=None):
     nm=nm.replace("{","")
     nm=nm.replace("}","")
     nm=nm.replace(" ","")
-    print "Outputed to %s" % nm
+    print "Outputed to %s/%s" % (os.getcwd(),nm)
     x.png(outpth+nm)
     return nm
 

@@ -1,6 +1,6 @@
 # Create your views here.
 import sys
-sys.path.append('/home/elo/uvcdat_live/app/scripts')
+sys.path.append('app/scripts')
 from django.http import HttpResponse
 from django.template import Context, loader
 from django.utils import simplejson
@@ -25,21 +25,22 @@ def boxfill(request):
         lev1=request.GET['lev1']
     if 'lev2' in request.GET:
         lev2=request.GET['lev2']
-    
-  
+
+
     selection_dict={'latitude':(latitude_from,latitude_to),'longitude':(longitude_from,longitude_to),'time':slice(time_slice_from,time_slice_to)}
-    try: 
-        spf.plotBoxfill(myfile,myvar,selection_dict)
+    try:
+        nm = spf.plotBoxfill(myfile,myvar,selection_dict)
+        nm=nm.replace(":","")
+        nm=nm.replace("/","")
+        nm=nm.replace("'","")
+        nm=nm.replace("{","")
+        nm=nm.replace("}","")
+        nm=nm.replace(" ","")
     except Exception, e:
+        nm=str(e)
         pass
-    nm = "plotBoxfill_%s_%s_%s_%s_%s" % (myfile,myvar,repr(selection_dict),lev1,lev2)
-    nm=nm.replace(":","")
-    nm=nm.replace("/","")
-    nm=nm.replace("'","")
-    nm=nm.replace("{","")
-    nm=nm.replace("}","")
-    nm=nm.replace(" ","")
-    print nm
+    #nm = "plotBoxfill_%s_%s_%s_%s_%s" % (myfile,myvar,repr(selection_dict),lev1,lev2)
+    #print nm
     c=Context({'png':nm})
     return HttpResponse(t.render(c))
 
