@@ -1,8 +1,10 @@
 import cdms2
 import vcs
 x=vcs.init()
+import sys
+from django.utils import simplejson
 
-outpth = "./"
+outpth = "/home/elo/uvcdat_live/app/media/"
 def plotBoxfill(file,var,selection,lev1=None,lev2=None):
     f=cdms2.open(file)
     s=f(var,**selection)
@@ -11,15 +13,15 @@ def plotBoxfill(file,var,selection,lev1=None,lev2=None):
         b.level_1=lev1
         b.level_2=lev2
     x.plot(s,b,bg=1,ratio='autot') # plots in bg
-    nm = outpth+"plotBoxfill_%s_%s_%s_%s_%s" % (file,var,repr(selection),lev1,lev2)
+    nm = "plotBoxfill_%s_%s_%s_%s_%s" % (file,var,repr(selection),lev1,lev2)
     nm=nm.replace(":","")
     nm=nm.replace("/","")
     nm=nm.replace("'","")
     nm=nm.replace("{","")
     nm=nm.replace("}","")
-    nm=nm[2:]
+    nm=nm.replace(" ","")
     print "Outputed to %s" % nm
-    x.png(nm)
+    x.png(outpth+nm)
     return nm
 
 
