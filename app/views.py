@@ -1,10 +1,10 @@
 # Create your views here.
 import sys
-sys.path.append('app/scripts')
+#sys.path.append('app/scripts')
 from django.http import HttpResponse
 from django.template import Context, loader
 from django.utils import simplejson
-import  sample_plot_function as spf
+import  proof_of_concept
 
 def hello(request):
     return HttpResponse("Hello World")
@@ -29,7 +29,7 @@ def boxfill(request):
 
     selection_dict={'latitude':(latitude_from,latitude_to),'longitude':(longitude_from,longitude_to),'time':slice(time_slice_from,time_slice_to)}
     try:
-        nm = spf.plotBoxfill(myfile,myvar,selection_dict)
+        nm = proof_of_concept.plotBoxfill(myfile,myvar,selection_dict)
         nm=nm.replace(":","")
         nm=nm.replace("/","")
         nm=nm.replace("'","")
