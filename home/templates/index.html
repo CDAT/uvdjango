@@ -5,6 +5,10 @@
     </head>
     <body>
         <p>Welcome to UVDjango<br/><br/>
+        {% if user.is_authenticated %}
+        You're logged in! :D
+        {% else %}
         Click <a href='login'>here</a> to log-in.</p>
+        {% endif %}
     </body>
 </html>
