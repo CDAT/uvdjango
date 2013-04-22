@@ -1,8 +1,8 @@
 # Django settings for uvdjango project.
 
-openid_base_url = 'pcmdi9.llnl.gov'
-openid_port = 7512
-proxy_cert_dir = '/export/fedorthurman1/.esg/proxycerts/'
+ESGF_HOST = 'pcmdi9.llnl.gov'
+ESGF_PORT = 7512
+PROXY_CERT_DIR = '/export/fedorthurman1/.esg/proxycerts/'
 
 
 DEBUG = True
@@ -97,6 +97,8 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+AUTHENTICATION_BACKENDS = ('esgf_auth_backend.backends.ESGF_Auth_Backend',)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -127,6 +129,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'login',
     'home',
+    'esgf_auth_backend',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
