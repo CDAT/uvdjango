@@ -5,10 +5,10 @@
     </head>
     <body>
         <p>Welcome to UVDjango<br/><br/>
-        {% if user.is_authenticated %}
-        You're logged in! :D
-        {% else %}
+        {% if not user.is_authenticated %}
         Click <a href='login'>here</a> to log-in.</p>
+        {% else %}
+        You're logged-in. Click <a href='plots/boxfill'>here</a> for boxfill.</p>
         {% endif %}
     </body>
 </html>
