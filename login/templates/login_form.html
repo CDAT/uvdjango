@@ -4,8 +4,10 @@
         <title>Log-in</title>
     </head>
     <body>
+        {% if error_message %}<p><strong><font color="#ff0000">{{ error_message }}</font></strong></p>{% endif %}
         <form action='.' method='post'>
             {% csrf_token %}
+            <input type='hidden' name='redir' value='{{ redir }}'/>
             <input type='text' name='username'/><br/>
             <input type='password' name='password'/><br/>
             <input type='submit' value='Log in'/>

@@ -1,5 +1,10 @@
 # Django settings for uvdjango project.
 
+openid_base_url = 'pcmdi9.llnl.gov'
+openid_port = 7512
+proxy_cert_dir = '/export/fedorthurman1/.esg/proxycerts/'
+
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
