@@ -2,5 +2,5 @@
 *~
 *pyc
 *.db
-app/media*
+media/*
 *uvcdatsession*log*
