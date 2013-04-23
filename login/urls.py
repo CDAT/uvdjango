@@ -3,5 +3,5 @@ from django.views.generic import DetailView, ListView
 
 urlpatterns = patterns('login.views',
         # /
-        url(r'^/?$', 'show_login'),
+        url(r'^/?$', 'show_login', name='login-login'),
 )
