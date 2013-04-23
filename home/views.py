@@ -1,3 +1,5 @@
+import pycurl
+
 import proof_of_concept
 
 from django.contrib.auth import authenticate, login
@@ -47,6 +49,13 @@ def boxfill(request):
                 'longitude':(longitude_from,longitude_to),
                 'time':slice(time_slice_from,time_slice_to)
             }
+               
+            # tell curl what certificate to use
+            #TODO: sanitize request.user.name!
+            active_cert = settings.PROXY_CERT_DIR + request.user.username + '.pem'
+            curl = pycurl.Curl()
+            curl.setopt(pycurl.SSLKEY, str(active_cert))
+
             
             try:
                 nm = proof_of_concept.plotBoxfill(myfile,myvar,selection_dict)
