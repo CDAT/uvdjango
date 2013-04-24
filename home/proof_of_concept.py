@@ -5,14 +5,16 @@ import sys
 from django.utils import simplejson
 import os
 
-outpth = "app/media/"
+outpth = "media/"
 def plotBoxfill(file,var,selection,lev1=None,lev2=None):
     f=cdms2.open(file)
+    print file
     s=f(var,**selection)
     b=x.createboxfill()
     if lev1 is not None and lev2 is not None:
         b.level_1=lev1
         b.level_2=lev2
+    x.clear()
     x.plot(s,b,bg=1,ratio='autot') # plots in bg
     nm = "plotBoxfill_%s_%s_%s_%s_%s" % (file,var,repr(selection),lev1,lev2)
     nm=nm.replace(":","")
@@ -21,8 +23,10 @@ def plotBoxfill(file,var,selection,lev1=None,lev2=None):
     nm=nm.replace("{","")
     nm=nm.replace("}","")
     nm=nm.replace(" ","")
-    print "Outputed to %s/%s" % (os.getcwd(),nm)
+    print "Image wrote to to %s/%s" % (outpth,nm)
+    print s.shape
     x.png(outpth+nm)
+    print outpth
     return nm
 
 

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <h1>Box Fill</h1>
+    
+    {% if error_message %}<p><strong><font color="#ff0000">{{ error_message }}</font></strong></p>{% endif %}
+    
+    <form action="/plots/boxfill/" method="post">
+    {% csrf_token %}
+    <table border="0">
+        <tr>
+            <td>
+                <label for="latitude_from">Latitude From*:</label>
+            </td>
+            <td>
+                <input type="text" name="latitude_from" id="latitude_from" /><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="latitude_to">Latitude To*:</label>
+            </td>
+            <td>
+                <input type="text" name="latitude_to" id="latitude_to" /><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="longitude_from">Longitude From*:</label>
+            </td>
+            <td>
+                <input type="text" name="longitude_from" id="longitude_from" /><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="longitude_to">Longitude To*:</label>
+            </td>
+            <td>
+                <input type="text" name="longitude_to" id="longitude_to" /><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="time_slice_from">Time slice from*:</label>
+            </td>
+            <td>
+                <input type="text" name="time_slice_from" id="longitude_to" /><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="time_slice_to">Time slice to*:</label>
+            </td>
+            <td>
+                <input type="text" name="time_slice_to" id="time_slice_to"/><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="file">File:</label>
+            </td>
+            <td>
+                <input type="text" name="file" id="file"/><font size="1"> Hint: <br/>/export/fedorthurman1/uvcdat/2012-02-20/sample_data/clt.nc
+               <br/> http://esgdata1.nccs.nasa.gov/thredds/dodsC/ana4MIPs/reanalysis/NOAA-NCEP/CFSR/mon/ocean/thetao/thetao_Omon_reanalysis_CFSR_198301-198312.nc.html?openid=https://pcmdi9.llnl.gov/esgf-idp/openid/fedorthurman1<br/></font>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="var">Var:</label>
+            </td>
+            <td>
+                <input type="text" name="var" id="var"/><font size="1"> Hint: clt</font><br/>
+            </td>
+        </tr>
+    </table>
+    <font size="1">* = Required</font><br/>
+    <input type="submit" value="Get boxfill"/>
+    </form>
+</html>

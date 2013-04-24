@@ -1,5 +1,6 @@
 .dods*
 *~
 *pyc
-app/media*
+*.db
+media/*
 *uvcdatsession*log*
