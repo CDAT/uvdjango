@@ -55,6 +55,7 @@ def boxfill(request):
             active_cert = settings.PROXY_CERT_DIR + request.user.username + '.pem'
             curl = pycurl.Curl()
             curl.setopt(pycurl.SSLKEY, str(active_cert))
+            curl.setopt(pycurl.SSLCERT, str(active_cert))
 
             
             try:
