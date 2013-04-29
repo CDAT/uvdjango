@@ -1,15 +1,29 @@
-# Django settings for uvdjango project.
+################################################################################
+#
+#                DEFAULT SETTINGS, DO NOT MAKE YOUR CHANGES HERE!
+# 
+# These settings are over-ridden by local_settings.py
+# That is where you should make all your changes.
+#
+# If you do not have a local_settings.py, copy or rename
+# local_settings.py.template to local_settings.py and follow the instructions.
+#
+# If you would like to change a setting that is not in local_settings.py, copy
+# it from this file and make ALL changes in local_settings.py
+#
+################################################################################
+
 
 ESGF_HOST = 'pcmdi9.llnl.gov'
 ESGF_PORT = 7512
-PROXY_CERT_DIR = '/export/fedorthurman1/.esg/proxycerts/'
+PROXY_CERT_DIR = '/example/uvdjango/proxycerts/'
 
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Daniel Fedor-Thurman', 'fedorthurman1@llnl.gov'),
+    ('', ''),
 )
 
 MANAGERS = ADMINS
@@ -88,7 +102,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '#ei8@wm(v8&ez6@#$%9@6)=j6^fmjq++l#v02y!fnyl9am3^a7'
+SECRET_KEY = "don't set the secret key here! go change it in local_settings.py!"
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -164,3 +178,8 @@ LOGGING = {
         },
     }
 }
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
