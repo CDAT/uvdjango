@@ -6,23 +6,21 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import Context, loader, RequestContext
 from django.conf import settings
 if not settings.configured:
     settings.configure()
 
 def show_index(request):
-    return render_to_response('index.html', {
-                }, context_instance = RequestContext(request))
+    return render(request, 'index.html', { })
 
 def boxfill(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login-login', args={'redir':reverse('home.views.boxfill')}))
     else:
         if request.GET:
-            return render_to_response('boxfill_form.html', {
-                    }, context_instance = RequestContext(request))
+            return render(request, 'boxfill_form.html', { })
         else:
             try:
                 myfile=request.POST['file']
@@ -40,9 +38,9 @@ def boxfill(request):
                 if 'lev2' in request.POST:
                     lev2=request.POST['lev2']
             except:
-                return render_to_response('boxfill_form.html', {
+                return render(request, 'boxfill_form.html', {
                     'error_message': "Please fill all required fields",
-                }, context_instance=RequestContext(request))
+                })
         
             selection_dict = {
                 'latitude':(latitude_from,latitude_to),
@@ -71,6 +69,6 @@ def boxfill(request):
                 pass
             #nm = "plotBoxfill_%s_%s_%s_%s_%s" % (myfile,myvar,repr(selection_dict),lev1,lev2)
             #print nm
-            return render_to_response('boxfill.html', {
+            return render(request, 'boxfill.html', {
                 'png': nm,
-            }, context_instance=RequestContext(request))
+            })
