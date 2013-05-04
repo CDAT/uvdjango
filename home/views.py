@@ -1,4 +1,5 @@
 import pycurl
+from urllib import urlencode
 
 import proof_of_concept
 
@@ -16,8 +17,9 @@ def show_index(request):
     return render(request, 'index.html', { })
 
 def boxfill(request):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('login-login', args={'redir':reverse('home.views.boxfill')}))
+    if not request.user.is_authenticated():
+        # send them to the login page, with a ?redir= on the end pointing back to this page
+        return HttpResponseRedirect(reverse('login:login') + "?" + urlencode({'redir':reverse('home.views.boxfill')}))
     else:
         if request.GET:
             return render(request, 'boxfill_form.html', { })
