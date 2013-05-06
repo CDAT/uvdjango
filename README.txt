@@ -1,1 +1,1 @@
-This will be the repo where we store ll UV-CDAT over Django related things
+This is the repo where we store all UV-CDAT over Django related things
