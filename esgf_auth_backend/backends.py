@@ -24,6 +24,16 @@ class ESGF_Auth_Backend:
                     port=settings.ESGF_PORT
                     )
         except GetException as e:
+            # myproxy_logon failed, so return None instead of a User
+            #
+            # TODO: When Django 1.6 comes out, this should be changed to:
+            #
+            #     raise PermissionDenied
+            #
+            # This will prevent the possibility of someone listing multiple
+            # authentication backends in their settings.py, thus allowing an
+            # attacker to authenticate as any user simply by using the default
+            # password assigned to all users created by this auth backend.
             return None
             
         # if we make it here, the username and password were good
@@ -31,12 +41,12 @@ class ESGF_Auth_Backend:
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            print "creating user " + username
             # Create a new user. Note that we can set password
-            # to anything, because it won't be checked; the password
-            # from settings.py will.
-            user = User(username=username, password='password is not used, ESGF\
-                        handles authentication for us')
+            # to anything, because unless another authentication backend is
+            # listed in settings.py's AUTHENTICATION_BACKENDS, this password
+            # will never be seen.
+            user = User(username=username,
+                        password='password is not used, ESGF handles authentication for us')
             user.is_staff = False
             user.is_superuser = False
             user.save()
