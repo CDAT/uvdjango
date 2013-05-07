@@ -4,8 +4,8 @@ from myproxy_logon import myproxy_logon, GetException
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import Context, loader, RequestContext
 
 def show_login(request):
@@ -20,7 +20,7 @@ def show_login(request):
             if user.is_active:
                 # login was successful
                 login(request, user)
-                return HttpResponseRedirect('/' + request.POST.get('redir', '..'))
+                return redirect(request.POST.get('redir', ''))
             else:
                 return render_to_response('login_form.html', {
                     'redir': request.POST.get('redir', '..'),
