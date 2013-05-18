@@ -1,5 +1,9 @@
+import fcntl
+import os
 import pycurl
 from urllib import urlencode
+
+from util.plots import boxfill as box_fill
 
 import proof_of_concept
 
@@ -53,24 +57,11 @@ def boxfill(request):
             # tell curl what certificate to use
             #TODO: sanitize request.user.name!
             active_cert = settings.PROXY_CERT_DIR + request.user.username + '.pem'
-            curl = pycurl.Curl()
-            curl.setopt(pycurl.SSLKEY, str(active_cert))
-            curl.setopt(pycurl.SSLCERT, str(active_cert))
-
             
-            try:
-                nm = proof_of_concept.plotBoxfill(myfile,myvar,selection_dict)
-                nm=nm.replace(":","")
-                nm=nm.replace("/","")
-                nm=nm.replace("'","")
-                nm=nm.replace("{","")
-                nm=nm.replace("}","")
-                nm=nm.replace(" ","")
-            except Exception, e:
-                nm=str(e)
-                pass
-            #nm = "plotBoxfill_%s_%s_%s_%s_%s" % (myfile,myvar,repr(selection_dict),lev1,lev2)
-            #print nm
+            plot_filename = box_fill(myfile, myvar, selection_dict, proxy_cert = active_cert)
+            
+            
+            
             return render(request, 'boxfill.html', {
-                'png': nm,
+                'png': plot_filename,
             })
