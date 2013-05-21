@@ -1,7 +1,42 @@
 <html>
+    <head>
+        <script type="text/javascript" charset="utf8" language="javascript">
+        if ((typeof jQuery == 'undefined') || (typeof jQuery.fn.dataTable == 'undefined')) {
+           document.write(unescape("%3Cscript src=\"http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.min.js\" type=\"text/javascript\"%3E%3C/script%3E"));
+           document.write(unescape("%3Cscript src=\"http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js\" type=\"text/javascript\"%3E%3C/script%3E"));
+           document.write(unescape("%3Cscript src=\"http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.2/jquery-ui.min.js\"%3E%3C/script%3E"));
+        }
+        </script>
+    </head>
     <body>
         <br>
-        <img src='{{MEDIA_ROOT}}/{{png}}'/>
+            <p>image url:</p>
+            <p>{{png}}</p>
+            <div id="image_holder">Loading...</div>
+            <script type="application/x-javascript">
+                function loadLoop(tagName, imageUrl) {
+                    imageLoader = setInterval(function() {
+                        loadImage(tagName, imageUrl);
+                    }, 150);
+                    setTimeout(function() {
+                        clearInterval(imageLoader);
+                        $(tagName).empty().html("Image failed to load.");
+                    }, 1000);
+                };
+                
+                function loadImage(tagName, imageUrl) {
+                    image = new Image();
+                    image.src = imageUrl;
+                    image.onload = function() {
+                        clearInterval(imageLoader);
+                        $(tagName).empty().append(image);
+                    };
+                };
+                
+                $(function(){
+                    loadLoop("#image_url", "{{png}}");       
+                });
+            </script>
         <br>
     </body>
 </html>
