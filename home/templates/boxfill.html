@@ -10,33 +10,9 @@
     </head>
     <body>
         <br>
-            <p>image url:</p>
-            <p>{{png}}</p>
-            <div id="image_holder">Loading...</div>
-            <script type="application/x-javascript">
-                function loadLoop(tagName, imageUrl) {
-                    imageLoader = setInterval(function() {
-                        loadImage(tagName, imageUrl);
-                    }, 150);
-                    setTimeout(function() {
-                        clearInterval(imageLoader);
-                        $(tagName).empty().html("Image failed to load.");
-                    }, 1000);
-                };
-                
-                function loadImage(tagName, imageUrl) {
-                    image = new Image();
-                    image.src = imageUrl;
-                    image.onload = function() {
-                        clearInterval(imageLoader);
-                        $(tagName).empty().append(image);
-                    };
-                };
-                
-                $(function(){
-                    loadLoop("#image_url", "{{png}}");       
-                });
-            </script>
+            <div id="image_holder" class="plot">
+                <img src="{{png}}"/>
+            </div>
         <br>
     </body>
 </html>

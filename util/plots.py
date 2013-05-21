@@ -1,7 +1,6 @@
 import cdms2
 from fcntl import flock, LOCK_EX, LOCK_UN
 import os
-import pycurl
 import sys
 import vcs
 
@@ -19,10 +18,8 @@ def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=No
     ### determine the filename plot will have ###
     filename = "plot-boxfill_%s_%s_%s_%s_%s" % (in_file, variable, str(in_selection), lev1, lev2)
     filename = sanitize_filename(filename)
-    print filename
-    print settings.MEDIA_ROOT
+    filename += ".png"
     filepath = os.path.join(settings.MEDIA_ROOT, filename)
-    print filepath
     
     ### check to see if we've already created this file ###
     if(os.path.isfile(filepath)):
@@ -30,19 +27,16 @@ def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=No
     
     ### if not, create the plot, write it to file, and return ###
     try:
-        curl = pycurl.Curl()
-        if os.path.isfile(proxy_cert):
-            print "\n\nSETTING PYCURL OPTIONS\n\n"
-            curl.setopt(pycurl.SSLKEY, str(proxy_cert))
-            curl.setopt(pycurl.SSLCERT, str(proxy_cert))
-            curl.setopt(pycurl.SSL_VERIFYPEER, 1)
-            curl.setopt(pycurl.SSL_VERIFYHOST, 1)
-            curl.setopt(pycurl.CAPATH, '/export/fedorthurman1/.certificates/')
-            curl.setopt(pycurl.CAINFO, '/export/fedorthurman1/.certificates/GlobusSimpleCA.pem')
-            print proxy_cert
-        else:
-            print "\n\nFAILED TO SET PYCURL OPTIONS\n\n"
-            
+        #######################################################################
+        # Unidata is adding functionality to netcdf so that we will be able
+        # to specify which .dodsrc (or .httprc) file it should read in order
+        # to find where the certificate is located.
+        # Once they're done with that, we'll need to make some changes to cdms2
+        # but in the end, our cdms2 call will probably look something like:
+        #
+        # httprc_path = settings.PROXY_CERT_DIR + '/' + username + '.httprc')
+        # data = cdms2.open(in_file, httprc=httprc_path)
+        #######################################################################
         data = cdms2.open(in_file)
         selection = data(variable, **in_selection)
         canvas = vcs.init()
@@ -57,7 +51,7 @@ def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=No
             flock(outfile, LOCK_EX)
             canvas.png(filepath)
             flock(outfile, LOCK_UN)
-        return filename + ".png"
+        return settings.MEDIA_URL + filename
     except Exception as e:
         print type(e)
         print "An exception has occured in plots.boxfill()! The error was \"%s\"" % e
