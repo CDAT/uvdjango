@@ -5,9 +5,12 @@ from myproxy_logon import myproxy_logon, GetException
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.http import Http404, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from django.template import Context, loader, RequestContext
 
+def test_login_form(request):
+    return render_to_response("test.html",None,context_instance=RequestContext(request))
+    
 def show_login(request):
     """
     Function to show the login page.
@@ -15,7 +18,7 @@ def show_login(request):
     # for POST requests, attempt logging-in
     if request.POST:
         user = authenticate(username = request.POST.get('username', None),
-                            password = request.POST.get('password', None))
+                            password = request.POST.get('password', None),peernode=request.POST.get('peernode', None))
         if user is not None:
             if user.is_active:
                 # login was successful

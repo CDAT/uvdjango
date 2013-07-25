@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+  <link rel="stylesheet" href="{{STATIC_URL}}css/plot.css" type="text/css" />
+  <script type="text/javascript" src="https://www.google.com/jsapi"> </script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    var ge;
+    google.load("earth", "1");
+
+    function init() {
+      google.earth.createInstance('map3d', initCB, failureCB);
+    }
+
+    function initCB(instance) {
+      ge = instance;
+      ge.getWindow().setVisibility(true);
+      // add a navigation control
+      ge.getNavigationControl().setVisibility(ge.VISIBILITY_AUTO);
+    }
+
+    function failureCB(errorCode) {
+    }
+
+    google.setOnLoadCallback(init);
+  </script>
+<script> 
+$(document).ready(function(){
+  $("#flip").click(function(){
+    $("#panel").slideToggle("slow");
+  });
+  $("#flip1").click(function(){
+	    $("#map3d").slideToggle("slow");
+	    $("#coord_div").slideToggle("slow");
+	  });
+});
+</script>
+</head>
+<body>
+<div id=top_banner><h1>UV-CDAT Live</h1><hr></div>
+<div id=top_link> <a href="/logout/">Logout</a></div>
+<div id=content>
+<table>
+<tr><td>
+  <div id="flip">Plot Options</div>
+  <div id="panel">
+  <label id=input_label>Number of Plots</label>
+  <select>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="4">4</option>
+  </select>
+  <label id=input_label>Plot Type</label>
+  <select>
+  <option value="boxfill">Boxfill</option>
+  </select>
+  </div>
+  <div id="flip1">Select Coordinates </div>
+  <div id="map3d" style="height: 350px; width: 335px;"></div>
+  <div id="coord_div">
+  <label id="input_label">N:</label>
+  <input id="text_input" type="text" value="-90">
+  <label id="input_label">S:</label>
+  <input id="text_input" type="text" value="90">
+  <label id="input_label">E:</label>
+  <input id="text_input" type="text" value="0">
+  <label id="input_label">W:</label>
+  <input id="text_input" type="text" value="180">
+  <button id="reset_button" type="reset">Reset</button> 
+  </div>
+  <div>
+  <div id="flip2">Dataset </div>
+  <div id="dataset_div">
+  </div>
+  </div>
+  </td>
+  <td>Content
+  </td>
+  </tr>
+  </table>
+  </div>
+  <div id=footer><hr><a href="">Contact us</a></div>
+</body>
+</html>

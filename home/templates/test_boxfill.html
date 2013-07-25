@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+<link rel="stylesheet" href="{{STATIC_URL}}css/plot.css" type="text/css" />
+  <script type="text/javascript" src="https://www.google.com/jsapi"> </script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+  
+  <script type="text/javascript"
+      src="http://maps.google.com/maps/api/js?sensor=false&libraries=drawing"></script>
+      
+  <script type="text/javascript">
+      var drawingManager;
+      var selectedShape;
+      var colors = ['#1E90FF', '#FF1493', '#32CD32', '#FF8C00', '#4B0082'];
+      var selectedColor;
+      var colorButtons = {};
+
+      function clearSelection() {
+        if (selectedShape) {
+          selectedShape.setEditable(false);
+          selectedShape = null;
+        }
+      }
+
+      function setSelection(shape) {
+        clearSelection();
+        selectedShape = shape;
+        shape.setEditable(true);
+        selectColor(shape.get('fillColor') || shape.get('strokeColor'));
+      }
+
+      function deleteSelectedShape() {
+        if (selectedShape) {
+          selectedShape.setMap(null);
+          drawingManager.setOptions({
+       	   	drawingControl: true
+       	  });
+        }
+      }
+
+
+
+      function initialize() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 1,
+          center: new google.maps.LatLng(-25, 45),
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          disableDefaultUI: true,
+          zoomControl: true
+        });
+
+        var polyOptions = {
+          strokeWeight: 0,
+          fillOpacity: 0.45,
+          editable: true
+        };
+        // Creates a drawing manager attached to the map that allows the user to draw
+        // markers, lines, and shapes.
+        drawingManager = new google.maps.drawing.DrawingManager({
+        	drawingControl: true,
+    	    drawingControlOptions: {
+    	      position: google.maps.ControlPosition.TOP_LEFT,
+    	      drawingModes: [
+    	        google.maps.drawing.OverlayType.RECTANGLE
+    	      ]
+    	    },
+          	rectangleOptions: {
+  	        	fillColor: '#0000FF',
+  	        	fillOpacity: 0.3,
+  	        	strokeWeight: 5,
+  	        	clickable: false,
+  	        	draggable:true,
+  	        	zIndex: 1,
+  	        	editable: true
+  	      	},
+          	map: map
+        });
+
+        google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
+            if (e.type != google.maps.drawing.OverlayType.MARKER) {
+            // Switch back to non-drawing mode after drawing a shape.
+            drawingManager.setDrawingMode(null);
+            drawingManager.setOptions({
+                drawingControl: false
+              });
+            var bounds=e.overlay.getBounds();
+			var ne = bounds.getNorthEast();
+			var sw = bounds.getSouthWest();
+			north=ne.lat();
+			south=sw.lat();
+			east=ne.lng();
+			west=sw.lng();
+			window.alert("Coor: " + north + " " + south + " " + east + " " + west);
+            // Add an event listener that selects the newly-drawn shape when the user
+            // mouses down on it.
+            var newShape = e.overlay;
+            newShape.type = e.type;
+            google.maps.event.addListener(newShape, 'click', function() {
+              setSelection(newShape);
+            });
+            setSelection(newShape);
+          }
+        });
+
+        // Clear the current selection when the drawing mode is changed, or when the
+        // map is clicked.
+        google.maps.event.addListener(drawingManager, 'drawingmode_changed', clearSelection);
+        google.maps.event.addListener(map, 'click', clearSelection);
+        google.maps.event.addDomListener(document.getElementById('delete-button'), 'click', deleteSelectedShape);
+
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  
+  <script type="text/javascript">
+  function toggle(tag_id)
+  {
+   a=document.getElementById('dataset_a'+tag_id);
+   ul=document.getElementById('dataset_ul'+tag_id);
+   if (ul.style.display=='block')
+   {
+    ul.style.display='none';
+    a.innerHTML='+';
+   }
+  else
+  {
+    ul.style.display='block';
+    a.innerHTML='-';
+   }
+  }
+  </script>
+  <script type="text/javascript">
+function allowDrop(ev)
+{
+ev.preventDefault();
+}
+
+function drag(ev)
+{
+ev.dataTransfer.setData("Text",ev.target.id);
+ev.dataTransfer.effectAllowed("copy");
+}
+
+function drop(ev)
+{
+ev.preventDefault();
+var data=ev.dataTransfer.getData("Text");
+var n = document.getElementById("n_text_input").value;
+var s = document.getElementById("s_text_input").value;
+var e = document.getElementById("e_text_input").value;
+var w = document.getElementById("w_text_input").value;
+var plot_type_selector = document.getElementById("plot_type");
+var plot_type=plot_type_selector.options[plot_type_selector.selectedIndex].value;
+var myvar_tag =document.getElementById(data).cloneNode(true);
+var myvar = myvar_tag.id;
+var ul_tag = document.getElementById(data).parentNode.id;
+var myfile = document.getElementById(ul_tag.substring(10)).innerHTML;
+var png="";
+$.ajax({url:'http://emily.llnl.gov:8000/plot/boxfill',
+        data:{"n":n,"s":s,"e":e,"w":w,"fnm":myfile,"var":myvar}, 
+        type:'GET',
+        datatype:'json', 
+        success:function(data){
+            png=data["png"];
+            ev.target.innerHTML="<img src="+png+"/>";
+            },
+        error: function(){alert('ERROR: unable to generate plot.');}
+    });
+}
+</script>
+<script> 
+$(document).ready(function(){
+	
+	$("#flip2").click(function(){
+	    $("#dataset_div").slideToggle("slow");
+	  });
+  $("#flip").click(function(){
+    $("#panel").slideToggle("slow");
+  });
+  $("#flip1").click(function(){
+	    $("#map").slideToggle("slow");
+	    $("#coord_div").slideToggle("slow");
+	  });
+   $("#row").change(function() {
+        var select_tag = $("#row option:selected");
+        var selected_val=select_tag.val();
+        var col_tag=$("#col option:selected");
+        var col = col_tag.val();
+        if (selected_val == '1')
+        {
+            if ($("#plot_row2").length != 0)
+            {
+                $("#plot_row2").remove();
+            }
+            if (col=='1')
+            {
+                $("#plot_1_1").width(850).height(800);
+            }
+            else if (col=='2')
+            {
+                $("#plot_1_1").width(425).height(800);
+                $("#plot_1_2").width(425).height(800);
+            }
+        }
+        else if (selected_val == '2')
+        {
+    	    if ($("#plot_row2").length != 0)
+            {
+                $("#plot_row2").remove();
+            }
+            if (col == '1')
+            {
+                $("#plot_row1").after("<tr id=plot_row2><td id=plot_2_1>Plot</td></tr>");
+                $("#plot_1_1").width(850).height(400);
+                $("#plot_2_1").width(850).height(400);
+            }
+            else if (col == '2')
+            {
+                $("#plot_row1").after("<tr id=plot_row2><td id=plot_2_1>Plot</td><td id=plot_2_2>Plot</td></tr>");
+                $("#plot_1_2").width(425).height(400);
+                $("#plot_2_2").width(425).height(400);
+                $("#plot_2_1").width(425).height(400);
+                $("#plot_1_1").width(425).height(400);
+            }
+
+        }
+    	  
+   });
+   $("#col").change(function() {
+        var select_tag = $("#col option:selected");
+        var selected_val=select_tag.val();
+        var row_tag=$("#row option:selected");
+        var row = row_tag.val();
+        if (selected_val == '1')
+        {
+            if ($("#plot_1_2").length != 0)
+            {
+                $("#plot_1_2").remove();
+            }
+            if ($("#plot_2_2").length != 0)
+            {
+                $("#plot_2_2").remove();
+            }
+            if ($("#plot_2_1").length != 0)
+            {
+                $("#plot_2_1").width(850);
+            }
+            if ($("#plot_1_1").length != 0)
+            {
+                $("#plot_1_1").width(850);
+            }
+        }
+        else if (selected_val == '2')
+        {
+            if (row == '1')
+            {
+                $("#plot_1_1").after("<td id=plot_1_2>Plot</td>");
+                $("#plot_1_2").width(425).height(800);
+                $("#plot_1_1").width(425).height(800);
+            }
+            else if (row == '2')
+            {
+                $("#plot_1_1").after("<td id=plot_1_2>Plot</td>");
+                $("#plot_2_1").after("<td id=plot_2_2>Plot</td>");
+                $("#plot_1_2").width(425).height(400);
+                $("#plot_2_2").width(425).height(400);
+                $("#plot_2_1").width(425).height(400);
+                $("#plot_1_1").width(425).height(400);
+            }
+        }
+   });
+});
+</script>
+</head>
+<body>
+<div id=top_banner><h1>UV-CDAT Live</h1><hr></div>
+<div id=top_link><a href="/logout/">Logout</a></div>
+<div id=content>
+<table>
+<tr><td>
+  <div id="flip">Plot Options</div>
+  <div id="panel">
+  <label id=input_label>Row<label>
+  <select id="row">
+  <option value="1">1</option>
+  <option value="2" selected>2</option>
+  </select>
+  <label id=input_label>Col</label>
+  <select id="col">
+  <option value="1">1</option>
+  <option value="2" selected>2</option>
+  </select>
+  <label id=input_label>Plot Type</label>
+  <select id="plot_type">
+  <option value="boxfill">Boxfill</option>
+  </select>
+  </div>
+  <div id="flip1">Select Coordinates </div>
+  <div id="coord_div">
+
+  <label id="input_label">N:</label>
+  <input id="n_text_input" type="text" value="-90">
+  <label id="input_label">S:</label>
+  <input id="s_text_input" type="text" value="90">
+  <label id="input_label">E:</label>
+  <input id="e_text_input" type="text" value="0">
+  <label id="input_label">W:</label>
+  <input id="w_text_input" type="text" value="180">
+  <button id="delete-button">Reset</button>
+  </div>
+  <div id="map"  style="height: 300px; width: 335px;"></div>
+  <div id=flip2>Dataset
+  </div>
+  <div id=dataset_div>
+        <table>
+            {% for myfile in dataset %}
+            <tr>
+                <td>
+                    <a id=dataset_a{{myfile.id}} href="javascript:toggle('{{myfile.id}}');">+</a>
+                </td>
+                <td style="word-break: break-all">
+                        <a id={{myfile.id}} href="">{{myfile.file}}</a>
+                        <ul id=dataset_ul{{myfile.id}} style="display:none">
+                            {% for myvar in myfile.var %}
+                                <li id={{myvar}} draggable="true" ondragstart="drag(event)">{{myvar}}</li> 
+                            {% endfor %}
+                        </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+  </div>
+  </td>
+  <td>
+  <table id=plot_panel width="100%">
+  <tr id=plot_row1>
+      <td id=plot_1_1 ondrop="drop(event)" ondragover="allowDrop(event)"><img src=""/></td>
+  <td id=plot_1_2>Plot</td>
+  </tr>
+  <tr id=plot_row2>
+  <td id=plot_2_1>Plot</td>
+  <td id=plot_2_2>Plot</td>
+  </tr>
+  </table>
+  </td>
+  </tr>
+  </table>
+  </div>
+  <div id=footer><hr><a href="">Contact us</a></div>
+</body>
+</html>

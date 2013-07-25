@@ -10,6 +10,14 @@ from django.conf import settings
 if not settings.configured:
     settings.configure()
     
+def getVar(in_file):
+    try:
+        data=cdms2.open(in_file)
+        varlist=data.variables.keys()
+    except Exception, e:
+        return None
+    return varlist
+
 def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=None):
     '''
     Generates a boxfill plot of the selected variable.
@@ -22,8 +30,8 @@ def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=No
     filepath = os.path.join(settings.MEDIA_ROOT, filename)
     
     ### check to see if we've already created this file ###
-    if(os.path.isfile(filepath)):
-        return settings.MEDIA_URL + filename
+    #if(os.path.isfile(filepath)):
+    #    return settings.MEDIA_URL + filename
     
     ### if not, create the plot, write it to file, and return ###
     try:
@@ -38,6 +46,9 @@ def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=No
         # data = cdms2.open(in_file, httprc=httprc_path)
         #######################################################################
         data = cdms2.open(in_file)
+        ### check to see if we've already created this file ###
+        if(os.path.isfile(filepath)):
+            return settings.MEDIA_URL + filename
         selection = data(variable, **in_selection)
         canvas = vcs.init()
         plot = canvas.createboxfill()
