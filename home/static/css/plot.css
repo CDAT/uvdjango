@@ -1,0 +1,86 @@
+@CHARSET "ISO-8859-1";
+html, body
+{
+    height: 100%;
+}
+
+body
+{
+    font: 14px 'Lucida Sans Unicode', 'Trebuchet MS', Arial, Helvetica;    
+    margin: 0;    
+}
+td
+{
+	vertical-align: top;
+}
+#coord_div input
+{
+    width: 40px; 
+    border: 1px solid #ccc;
+}
+#coord_div label
+{
+	width:8px;
+	color: #666;
+    font: 14px 'Lucida Sans Unicode', 'Trebuchet MS', Arial, Helvetica;
+}
+h1
+{
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .7), 0px 2px 0 rgba(0, 0, 0, .5);
+    text-align: left;
+    color: #666;
+    margin: 0 0 10px 0;
+    letter-spacing: 4px;
+    font: normal 26px/1 Verdana, Helvetica;
+    position: relative;
+}
+#top_link a
+{
+	text-align: right;
+	position:absolute;
+	right:10px;
+	top: 10px;
+	colog: #999;
+}
+#footer a
+{
+    display: block;
+    text-align: left;
+    position: relative;
+    top: 10px;
+    color: #999;
+}
+
+#flip,#flip1,#flip2
+{
+padding:2px;
+text-align:left;
+background-color:#e5eecc;
+border:solid 1px #c3c3c3;
+}
+#panel
+{
+padding:2px;
+border:solid 1px #c3c3c3;
+}
+#dataset_p
+{
+    width:335px; 
+    word-wrap: break-word;
+}
+#plot_1_1,#plot_1_2,#plot2_1,#plot_2_2
+{
+	height: 425px;
+	width: 500px;
+}
+#plot_panel td
+{
+	border:solid 1px #c3c3c3;
+}
+#dataset_div
+{
+    width: 335px;
+    height: 750px;
+    border:solid 1px #c3c3f3;
+    overflow: auto;
+}
