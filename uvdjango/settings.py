@@ -16,7 +16,7 @@
 
 ESGF_HOST = 'pcmdi9.llnl.gov'
 ESGF_PORT = 7512
-PROXY_CERT_DIR = '/example/uvdjango/proxycerts/'
+PROXY_CERT_DIR = '/uvdjango/proxycerts/'
 
 
 DEBUG = False

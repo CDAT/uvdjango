@@ -5,6 +5,8 @@ from urllib import urlencode
 
 from util.plots import boxfill as box_fill
 from util.plots import getVar as get_var
+from util.file_handler import download_file as download_file
+from util.calculator import eval_cdat_cmd as eval_cdat
 
 import proof_of_concept
 
@@ -16,11 +18,46 @@ from django.shortcuts import render, get_object_or_404,render_to_response
 from django.template import Context, loader, RequestContext
 from django.conf import settings
 from django.utils import simplejson
+from django.core.servers.basehttp import FileWrapper
 if not settings.configured:
     settings.configure()
 
-def test_page(request):
-    return render_to_response("test.html",None,context_instance=RequestContext(request))
+import tempfile,zipfile
+import vcs
+from uvcdatCommons import plotTypes
+
+def downloadFile(request):
+    if not request.user.is_authenticated():
+        # send them to the login page, with a ?redir= on the end pointing back to this page
+        return HttpResponseRedirect(reverse('login:login') + "?" + urlencode({'redir':reverse('home.views.make_main_window')}))
+    else:
+        active_cert = settings.PROXY_CERT_DIR + request.user.username+'/'+request.user.username + '.pem'
+        myfile=request.GET['fnm']
+        myvar=request.GET['varlist[]']
+        outfile=download_file(myfile,myvar,active_cert)
+        """
+        temp = tempfile.TemporaryFile()
+        archive = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+        archive.write(outfile, 'file.txt')
+        archive.close()
+        """
+        wrapper=FileWrapper(file(outfile))
+        response = HttpResponse(wrapper, content_type="application/x-netcdf")
+        response['Content-Disposition']='attachment; filename=%s'%outfile
+        response['Content-Length']=os.path.getsize(outfile)
+        #temp.seek(0)
+
+        return response
+
+def calculate(request):
+    cdat_cmd=request.GET['cmd']
+    myvar=request.GET['myvar']
+    mynewvar=request.GET['mynewvar']
+    myfile=request.GET['myfile']
+    my_new_var=eval_cdat(cdat_cmd,myfile,myvar,mynewvar)
+    obj={"outfile":my_new_var,"myfileid":500}
+    json_res=simplejson.dumps(obj) 
+    return HttpResponse(json_res, content_type="application/json")
 
 def logout_view(request):
     try:
@@ -34,7 +71,7 @@ def logout_view(request):
 
 
 def show_index(request):
-    return render(request, 'index.html', { })
+    return render(request, 'testplot_form.html', { })
 
 def boxfill(request):
     if not request.user.is_authenticated():
@@ -86,12 +123,11 @@ def boxfill(request):
 def make_boxfill(request):
     if not request.user.is_authenticated():
         # send them to the login page, with a ?redir= on the end pointing back to this page
-        return HttpResponseRedirect(reverse('login:login') + "?" + urlencode({'redir':reverse('home.views.testplot_form')}))
+        return HttpResponseRedirect(reverse('login:login') + "?" + urlencode({'redir':reverse('home.views.main_main_window')}))
     else:
         active_cert = settings.PROXY_CERT_DIR + request.user.username + '.pem'
         myfile=request.GET['fnm']
         myvar=request.GET['var']
-        print myvar
         n=request.GET['n']
         s=request.GET['s']
         e=request.GET['e']
@@ -107,23 +143,20 @@ def make_boxfill(request):
         return HttpResponse(json_res, content_type="application/json")
 
 
-def testplot_form(request,json_param=None):
+def make_main_window(request,json_param=None):
     if not request.user.is_authenticated():
         # send them to the login page, with a ?redir= on the end pointing back to this page
-        return HttpResponseRedirect(reverse('login:login') + "?" + urlencode({'redir':reverse('home.views.testplot_form')}))
+        return HttpResponseRedirect(reverse('login:login') + "?" + urlencode({'redir':reverse('home.views.make_main_window')}))
     else:
         if request.GET:
             return render(request, 'testplot_form.html', { })
         else:
             #if not json_param:
             #    print "testing through form (no link from ESGF yet)"
-            total_plot="4"
-            plot_type="boxfill"
             n="-90"
             s="90"
             e="0"
             w="180"
-            active_plot="1"
 
             try:
                 myfile=request.POST['file']
@@ -151,6 +184,15 @@ def testplot_form(request,json_param=None):
             varlist=get_var(myfile)
             if not varlist:
                 return render_to_response("accessDenied.html",None,context_instance=RequestContext(request))
+
+            # make dictionary of available plots
+            canvas=vcs.init()
+            plot_dict={}
+            for k in sorted(plotTypes.keys()):
+                plot_dict[k]={}
+                for plot in sorted(plotTypes[k]):
+                    plot_dict[k][plot]=canvas.listelements(plot.lower())
+                    
             """
             if json_param:
                 plot_filename = box_fill(myfile, varlist, selection_dict, proxy_cert = active_cert)
@@ -158,8 +200,10 @@ def testplot_form(request,json_param=None):
                 plot_filename=None
             """
             #plot_filename=settings.MEDIA_URL + "plot-boxfill_httppcmdi9llnlgovthreddsdodsccmip5output1inminmcm41pctco2monatmosamonr1i1p1ccb20130207aggregation1_ccb_latitude_-90_90_longitude_-180_180_time_slice1_6_none_none_none.png"
+            """
             mycontent={"curOpt":{"total":total_plot,"type":plot_type,"n":n,"s":s,"e":e,"w":w,"active_plot":active_plot},
-                    "dataset":[{"file":myfile,"var":varlist,"id":"2"}],
+                    "dataset":[{"file":myfile,"var":varlist,"id":"2"}],"user":request.user.username,
                     }
-
-            return render(request, 'test_boxfill.html',mycontent)
+            """
+            mycontent={"plot_dict":plot_dict,"dataset":[{"file":myfile,"var":varlist,"id":"2"}],"user":request.user.username}
+            return render(request, 'plot.html',mycontent)
