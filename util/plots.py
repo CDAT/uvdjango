@@ -56,7 +56,7 @@ def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=No
             plot.level_1 = lev1
             plot.level_2 = lev2
         canvas.clear()
-        canvas.plot(selection, plot, bg=1, ratio='autot') # plots in background
+        canvas.plot(selection, plot, bg=1)#, #ratio='autot') # plots in background
         
         with open(filepath, 'wb') as outfile:
             flock(outfile, LOCK_EX)

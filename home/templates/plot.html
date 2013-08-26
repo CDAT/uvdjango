@@ -295,9 +295,6 @@ $(document).ready(function(){
         }
     });
 
-    $("#darraw").click(function(){
-        $(".sub1").toggle();
-    });
 
     $('#map_icon').click( function() {
         gmap=document.getElementById('map');
@@ -319,7 +316,6 @@ $(document).ready(function(){
         help: "clone",
         cursor: "crosshair",
         cursorAt: {left: 5},
-        zIndex:2,
     });
     $(".droppable").droppable({
         zIndex:2,
@@ -369,7 +365,7 @@ $(document).ready(function(){
                 datatype:'json', 
                 success:function(data){
                     png=data["png"];
-                    event.target.innerHTML="<img src="+png+"/>";
+                    event.target.innerHTML='<img src='+png+' style="height:500px;width:500px;"/>';
                     },
                 error: function(){alert('ERROR: unable to generate plot.');}
             });
@@ -512,6 +508,39 @@ $(document).ready(function(){
             </table>
         </div>
     </div>
+    <div id=right>
+        <div id=plot_header>
+        <table>
+              <tr>
+                  <td>
+                      Plot Display Options:
+                    <label id=input_label>Row<label>
+                    <select id="row">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    </select>
+                    <label id=input_label>Col</label>
+                    <select id="col">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        </div>
+        <table id=plot_panel width="100%">
+            <tr id=plot_row1>
+                <td id=plot_1_1 class="droppable"></td> 
+                <td id=plot_1_2 class="droppable"></td>
+            </tr>
+            <tr id=plot_row2>
+                <td id=plot_2_1 class="droppable"></td>
+                <td id=plot_2_2 class="droppable"></td>
+            </tr>
+        </table>
+    </div>
+
+  </div>
     <div id=left2>
         <div id=var_panel_label>
             <img class=var_icon src={{STATIC_URL}}img/delete.png onclick="deleteSelectedVariables()"/>
@@ -536,30 +565,7 @@ $(document).ready(function(){
         <div id="map"  style=" height: 200px; width: 100%;display: none"></div>
         <div id=plot_option>
             <span id="plot_type_selection">Plot Type </text>
-            <span id="darraw">&#9660;</span>
             <input id="plot_type_input" type="text" value="boxfill">
-            <input id="overlay_option" class="checkbox" type="checkbox">Overlay
-        </div>
-        <div id=plotmenu>
-            <ul  class=sub1>
-            {% for k1,v1 in plot_dict.items %}
-                    <li>
-                    <a href="">{{k1}}</a>
-                        <ul id="{{k1}}"class=sub2>
-                        {% for k2,v2  in v1.items %}
-                            <li>
-                            <a href="">{{k2}}</a>
-                                <ul id="{{k2}}" class=sub3>
-                                {% for m in v2 %}
-                                    <li><a href="">{{m}}</a></li>
-                                {% endfor %}
-                            </ul>
-                                </li>
-                        {% endfor %}
-                        </ul>
-                    </li>
-            {% endfor %}
-            </ul>
         </div>
         <div id="var_panel">
             <table id="var_table">
@@ -614,44 +620,5 @@ $(document).ready(function(){
             </table>
         </div>
     </div>
-    <div id=right>
-        <div id=plot_header>
-        <table>
-              <tr>
-                  <td>
-                      Plot Display Options:
-                    <label id=input_label>Row<label>
-                    <select id="row">
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    </select>
-                    <label id=input_label>Col</label>
-                    <select id="col">
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-        </div>
-        <table id=plot_panel width="100%">
-            <tr id=plot_row1>
-                <td id=plot_1_1 class="droppable"></td> 
-                <td id=plot_1_2 class="droppable"></td>
-            </tr>
-            <tr id=plot_row2>
-                <td id=plot_2_1 class="droppable"></td>
-                <td id=plot_2_2 class="droppable"></td>
-            </tr>
-        </table>
-    </div>
-
-  </div>
-  <div id=footer><a href="">About</a>
-      <a href="">Support</a>
-      <a href="">Documentation</a>
-      <a href="">Privacy Policy</a>
-      <a href="">Terms of Use</a>
-      <a href="">Contact us</a></div>
 </body>
 </html>

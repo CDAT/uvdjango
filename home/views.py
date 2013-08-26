@@ -7,6 +7,7 @@ from util.plots import boxfill as box_fill
 from util.plots import getVar as get_var
 from util.file_handler import download_file as download_file
 from util.calculator import eval_cdat_cmd as eval_cdat
+from util.esgf_connector import datasetId_to_html_list as datasetId2htmllist
 
 import proof_of_concept
 
@@ -24,7 +25,6 @@ if not settings.configured:
 
 import tempfile,zipfile
 import vcs
-from uvcdatCommons import plotTypes
 
 def downloadFile(request):
     if not request.user.is_authenticated():
@@ -185,14 +185,6 @@ def make_main_window(request,json_param=None):
             if not varlist:
                 return render_to_response("accessDenied.html",None,context_instance=RequestContext(request))
 
-            # make dictionary of available plots
-            canvas=vcs.init()
-            plot_dict={}
-            for k in sorted(plotTypes.keys()):
-                plot_dict[k]={}
-                for plot in sorted(plotTypes[k]):
-                    plot_dict[k][plot]=canvas.listelements(plot.lower())
-                    
             """
             if json_param:
                 plot_filename = box_fill(myfile, varlist, selection_dict, proxy_cert = active_cert)
@@ -205,5 +197,57 @@ def make_main_window(request,json_param=None):
                     "dataset":[{"file":myfile,"var":varlist,"id":"2"}],"user":request.user.username,
                     }
             """
-            mycontent={"plot_dict":plot_dict,"dataset":[{"file":myfile,"var":varlist,"id":"2"}],"user":request.user.username}
+            mycontent={"dataset":[{"file":myfile,"var":varlist,"id":"2"}],"user":request.user.username}
+            return render(request, 'plot.html',mycontent)
+
+def make_datasetId_form(request):
+    return render(request, 'test_datasetId_form.html', { })
+
+
+def run_main_window(request):
+    if not request.user.is_authenticated():
+        print "NOT AUTHENTICATED"
+        # send them to the login page, with a ?redir= on the end pointing back to this page
+        return HttpResponseRedirect(reverse('login:login') + "?" + urlencode({'redir':reverse('home.views.run_main_window')}))
+    else:
+        if request.GET:
+            return render(request, 'test_datasetId_form.html', { })
+        else:
+            datasetIds=request.POST['datasetIds']
+            n="-90"
+            s="90"
+            e="0"
+            w="180"
+            counter = 1 
+            mylist_dict=[]
+            try:
+                datasetIds_token=datasetIds.split(',')
+                for datasetId in datasetIds_token:
+                    print datasetId
+                    htmllist=datasetId2htmllist(datasetId)
+                    myhtmllist=htmllist.split(',')
+                    for html in myhtmllist:
+                        myfile=html
+                        print html
+                        active_cert = settings.PROXY_CERT_DIR + request.user.username + '.pem'
+                        varlist=get_var(myfile)
+                        if not varlist:
+                            return render_to_response("accessDenied.html",None,context_instance=RequestContext(request))
+                        mydict={"file":myfile,"var":varlist,"id":counter}
+                        mylist_dict.append(mydict)
+                        counter=counter+1
+                print mylist_dict
+            except Exception, err:
+                print err
+                return render(request, 'test_datasetId_form.html', {
+                    'error_message': "Please fill all required fields",
+                    })
+        
+            selection_dict = {
+                'latitude':(-90,90),
+                'longitude':(0,180),
+                'time':slice(0,1)
+            }
+               
+            mycontent={"dataset":mylist_dict,"user":request.user.username}
             return render(request, 'plot.html',mycontent)
