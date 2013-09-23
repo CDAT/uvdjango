@@ -11,12 +11,12 @@ if not settings.configured:
     settings.configure()
     
 def getVar(in_file):
-    try:
-        data=cdms2.open(in_file)
-        varlist=data.variables.keys()
-    except Exception, e:
-        return None
-    return varlist
+#    try:
+#        data=cdms2.open(in_file)
+#        varlist=data.variables.keys()
+#    except Exception, e:
+#        return None
+    return ['a', 'b', 'c']
 
 def boxfill(in_file, variable, in_selection, proxy_cert=None, lev1=None, lev2=None):
     '''

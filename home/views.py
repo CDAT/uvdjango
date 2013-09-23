@@ -24,7 +24,7 @@ if not settings.configured:
 
 import tempfile,zipfile
 import vcs
-from uvcdatCommons import plotTypes
+#from uvcdatCommons import plotTypes
 
 def downloadFile(request):
     if not request.user.is_authenticated():
@@ -188,10 +188,10 @@ def make_main_window(request,json_param=None):
             # make dictionary of available plots
             canvas=vcs.init()
             plot_dict={}
-            for k in sorted(plotTypes.keys()):
-                plot_dict[k]={}
-                for plot in sorted(plotTypes[k]):
-                    plot_dict[k][plot]=canvas.listelements(plot.lower())
+            #for k in sorted(plotTypes.keys()):
+            #    plot_dict[k]={}
+            #    for plot in sorted(plotTypes[k]):
+            #        plot_dict[k][plot]=canvas.listelements(plot.lower())
                     
             """
             if json_param:

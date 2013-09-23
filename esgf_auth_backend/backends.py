@@ -46,7 +46,7 @@ class ESGF_Auth_Backend:
         # if we make it here, the username and password were good
         # output .httprc file if .httprc is not found
         try:
-            cdms2.setHttprcDirectory(cert_path)
+            #cdms2.setHttprcDirectory(cert_path)
             filepath=os.path.join(settings.PROXY_CERT_DIR,username,".daprc")
             if not os.path.exists(filepath):
                 dodsrc_cache_root=os.path.join(cert_path,".dods_cache")
