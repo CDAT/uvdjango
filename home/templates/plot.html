@@ -3,132 +3,187 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>UV-CDAT Live</title>
-<link rel="stylesheet" href="{{STATIC_URL}}css/plot.css" type="text/css" />
-<link rel="stylesheet" href="{{STATIC_URL}}css/menu.css" type="text/css" />
-  <script type="text/javascript" src="https://www.google.com/jsapi"> </script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-  
-  <script type="text/javascript"
-      src="http://maps.google.com/maps/api/js?sensor=false&libraries=drawing"></script>
-      
-  <script type="text/javascript">
-      var drawingManager;
-      var selectedShape;
-      var colors = ['#1E90FF', '#FF1493', '#32CD32', '#FF8C00', '#4B0082'];
-      var selectedColor;
-      var colorButtons = {};
 
-      function clearSelection() {
-        if (selectedShape) {
-          selectedShape.setEditable(false);
-          selectedShape = null;
-        }
-      }
+	<link rel="stylesheet" href="{{STATIC_URL}}ext/widgets/jquery-ui/jquery-ui-1.10.0.css" type='text/css'>
+	<link rel="stylesheet" href="{{STATIC_URL}}css/plot.css" type="text/css" >
+        <link rel='stylesheet' href='{{STATIC_URL}}css/main.css' type='text/css'>
 
-      function setSelection(shape) {
-        clearSelection();
-        selectedShape = shape;
-        shape.setEditable(true);
-      }
+        <script src="{{STATIC_URL}}ext/js-core/autobahn.min.js"></script>
+        <script src="{{STATIC_URL}}ext/js-core/jquery-1.8.3.min.js"></script>
+        <script src="{{STATIC_URL}}ext/js-core/gl-matrix-min.js"></script>
+        <script src="{{STATIC_URL}}ext/js-core/jquery.hammer.min.js"></script>
 
-      function deleteSelectedShape() {
-        $('#n_text_input').val('-90');
-        $('#s_text_input').val('90');
-        $('#e_text_input').val('0');
-        $('#w_text_input').val('180');
-        if (selectedShape) {
-          selectedShape.setMap(null);
-          drawingManager.setOptions({
-       	   	drawingControl: true
-       	  });
-        }
-      }
+        <script src="{{STATIC_URL}}ext/widgets/jscolor/jscolor.js"></script>
+        <script src="{{STATIC_URL}}ext/widgets/jquery-ui/jquery-ui-1.10.0.min.js"></script>
 
-      function initialize() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 0,
-          center: new google.maps.LatLng(-25, 45),
-          mapTypeId: google.maps.MapTypeId.ROADMAP,
-          disableDefaultUI: true,
-          zoomControl: true
-        });
+        <script src="{{STATIC_URL}}lib/js/vtkweb-all.js"></script>
+	
+</head>
+<body>
 
-        var polyOptions = {
-          strokeWeight: 0,
-          fillOpacity: 0.45,
-          editable: true
-        };
-        // Creates a drawing manager attached to the map that allows the user to draw
-        // markers, lines, and shapes.
-        drawingManager = new google.maps.drawing.DrawingManager({
-        	drawingControl: true,
-    	    drawingControlOptions: {
-    	      position: google.maps.ControlPosition.TOP_LEFT,
-    	      drawingModes: [
-    	        google.maps.drawing.OverlayType.RECTANGLE
-    	      ]
-    	    },
-          	rectangleOptions: {
-  	        	fillColor: '#0000FF',
-  	        	fillOpacity: 0.3,
-  	        	strokeWeight: 5,
-  	        	clickable: false,
-  	        	draggable:true,
-  	        	zIndex: 1,
-  	        	editable: true
-  	      	},
-          	map: map
-        });
 
-        google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
-            if (e.type != google.maps.drawing.OverlayType.MARKER) {
-            // Switch back to non-drawing mode after drawing a shape.
-            drawingManager.setDrawingMode(null);
-            drawingManager.setOptions({
-                drawingControl: false
-              });
-            var bounds=e.overlay.getBounds();
-			var ne = bounds.getNorthEast();
-			var sw = bounds.getSouthWest();
-			south=ne.lat();
-			north=sw.lat();
-			west=ne.lng();
-                        east=sw.lng();
-                        north_num=parseFloat(north).toFixed(0);
-                        north_str=north_num.toString();
-                        south_num=parseFloat(south).toFixed(0);
-                        south_str=south_num.toString();
-                        east_num=parseFloat(east).toFixed(0);
-                        east_str=east_num.toString();
-                        west_num=parseFloat(west).toFixed(0);
-                        west_str=west_num.toString();
-                        $('#n_text_input').val(north_str);
-                        $('#s_text_input').val(south_str);
-                        $('#e_text_input').val(east_str);
-                        $('#w_text_input').val(west_str);
-            // Add an event listener that selects the newly-drawn shape when the user
-            // mouses down on it.
-            var newShape = e.overlay;
-            newShape.type = e.type;
-            google.maps.event.addListener(newShape, 'click', function() {
-              setSelection(newShape);
-            });
-            setSelection(newShape);
-          }
-        });
+<div id=content>
+    <div id=left1>
+        <div id=dataset_label>
+                <img class=var_icon src={{STATIC_URL}}img/new.png/>
+                <img class=var_icon src={{STATIC_URL}}img/open.png/>
+                <img class=var_icon src={{STATIC_URL}}img/file_save.png/>
+                <img class=var_icon src={{STATIC_URL}}img/close.png/>
+        </div>
+        <div id=dataset_div>
+            <table>
+                {% for myfile in dataset %}
+                <tr>
+                    <td>
+                        <a id=dataset_a{{myfile.id}} href="javascript:toggle('{{myfile.id}}');"><img src='{{STATIC_URL}}img/folder_blue_open.png'/></a>
+                        <a id=dataset_import{{myfile.id}} href="javascript:import_var('{{myfile.id}}')"><img src='{{STATIC_URL}}img/save.png' width=15px/></a>
+                    </td>
+                    <td style="word-break: break-all">
+                        <a id={{myfile.id}} href="javascript:downloadFile('{{myfile.file}}','{{myfile.id}}')">{{myfile.file}}</a>
+                        <ul id=dataset_ul{{myfile.id}} style="display:none">
+                            {% for myvar in myfile.var %}
+                            <li id={{myvar}} >
+                                <input id={{myvar}} type=checkbox value={{myvar}} class={{myfile.id}}>
+                                <label for={{myvar}} id=label_{{myfile.id}}_{{myvar}} class="draggable">{{myvar}}</label>
+                            </li> 
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+      <div id=right>
+        <div id=plot_header>
+        <table>
+              <tr>
+                  <td>
+                      Plot Display Options:
+                    <label id=input_label>Row<label>
+                    <select id="row">
+                    <option value="1" >1</option>
+                    <option value="2" selected>2</option>
+                    </select>
+                    <label id=input_label>Col</label>
+                    <select id="col">
+                    <option value="1" >1</option>
+                    <option value="2" selected>2</option>
+                    </select>
+                </td>
+		
+                <td><img class=var_icon src={{STATIC_URL}}img/delete.png/></td>
+                <td><img class=var_icon src={{STATIC_URL}}img/source.png/></td>
+                <td><img class=var_icon src={{STATIC_URL}}img/edit.png/></td>
+                <td><img class=var_icon src={{STATIC_URL}}img/pipeline.png/></td>
+                <td><img class=var_icon src={{STATIC_URL}}img/previous.png/></td>
+                <td><img class=var_icon src={{STATIC_URL}}img/next.png/></td>
+                <td><img class=var_icon src={{STATIC_URL}}img/printer.png/></td>
+                <td><img class=var_icon src={{STATIC_URL}}img/file_export.png/></td>
+            </tr>
+        </table>
+        </div>
+        <table id=plot_panel width="100%">
+            <tr id=plot_row1>
+                <td id=plot_1_1 class="droppable">
+		    <div class="splitter">
+            		<div class="viewport-container" ></div>
+            		<div class="control-panel" style="display: none;"></div>
+        	    </div>
+        	    <div><p id="data"></p></div>
+		</td> 
+		
+  		<td id=plot_1_2 class="droppable"></td>
+            </tr>
+            <tr id=plot_row2>
+                <td id=plot_2_1 class="droppable"></td>
+                <td id=plot_2_2 class="droppable"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div id=left2>
+        <div id=var_panel_label>
+            <img class=var_icon src={{STATIC_URL}}img/delete.png onclick="deleteSelectedVariables()"/>
+            <img class=var_icon src={{STATIC_URL}}img/checked.png onclick="checkAllVariables()"/>
+            <img class=var_icon src={{STATIC_URL}}img/edit.png onclick="editSelectedVariables()"/>
+            <img class=var_icon src={{STATIC_URL}}img/file_save.png/>
+            <img class=var_icon src={{STATIC_URL}}img/preferences.png onclick="resetVariables()"/>
+	    <select id="plotTypeSelection">
+            	<option value="boxfill" selected>boxfill</option>
+                <option value="isofill">isofill</option>
+            </select>
+        </div>
+       <div id=coord_div>
+            <img id=map_icon src="{{STATIC_URL}}img/map-icon.png" />
+            <label id="input_label">N:</label>
+            <input id="n_text_input" type="text" value="-90">
+            <label id="input_label">S:</label>
+            <input id="s_text_input" type="text" value="90">
+            <label id="input_label">E:</label>
+            <input id="e_text_input" type="text" value="0">
+            <label id="input_label">W:</label>
+            <input id="w_text_input" type="text" value="180">
+            <button id="delete-button">Reset</button>
+		
+        </div>
 
-        // Clear the current selection when the drawing mode is changed, or when the
-        // map is clicked.
-        google.maps.event.addListener(drawingManager, 'drawingmode_changed', clearSelection);
-        google.maps.event.addListener(map, 'click', clearSelection);
-        google.maps.event.addDomListener(document.getElementById('delete-button'), 'click', deleteSelectedShape);
+        <div id="var_panel">
+            <table id="var_table">
+            </table>
+        </div>
+        <div id="calculator">
+            <table id="calc_table1">
+                <tr><td colspan=6><input type=text id=array_name placeholder="Result Array Name"/></td></tr>
+                <tr><td colspan=6><input type=text id=calc_command placeholder="Enter a CDAT command"/></td></tr>
+                <tr>
+                    <td><button class=calc_button id=sin_btn>sin</button></td>
+                    <td><button class=calc_button>asin</button></td>
+                    <td><button class=calc_button>x^2</button></td>
+                    <td><button class=calc_button>ln</button></td>
+                    <td><button class=calc_button>x<y</button></td>
+                    <td><button class=calc_button>+</button></td>
+                </tr>
+                <tr>
+                    <td><button class=calc_button>cos</button></td>
+                    <td><button class=calc_button>acos</button></td>
+                    <td><button class=calc_button>sqrt</button></td>
+                    <td><button class=calc_button>log10</button></td>
+                    <td><button class=calc_button>x>y</button></td>
+                    <td><button class=calc_button>-</button></td>
+                </tr>
+                <tr>
+                    <td><button class=calc_button>tan</button></td>
+                    <td><button class=calc_button>atan</button></td>
+                    <td><button class=calc_button>1/x</button></td>
+                    <td><button class=calc_button>exp</button></td>
+                    <td><button class=calc_button>x<>y</button></td>
+                    <td><button class=calc_button id=multiply>*</button></td>
+                </tr>
+                <tr>
+                    <td><button class=calc_button>abs</button></td>
+                    <td><button class=calc_button>std</button></td>
+                    <td><button class=calc_button>x^y</button></td>
+                    <td><button class=calc_button>10^x</button></td>
+                    <td><button class=calc_button>x==y</button></td>
+                    <td><button class=calc_button>/</button></td>
+                </tr>
+            </table>
+            <table id="calc_table2">
+                <tr>
+                    <td><button class=calc_button>Regrid</button></td>
+                    <td><button class=calc_button>Mask</button></td>
+                    <td><button class=calc_button>Get_Mask</button></td>
+                    <td><button class=calc_button>Grower</button></td>
+                </tr>
+                <tr><td colspan=2><input type=checkbox id=replace_invalid_result checked /><label for=replace_invalid_result>Replace Invalid Results</label></td>
+                <td colspan=2><input type=text id=invalid_replacement_value placeholder="Replacement Value"/></td></tr>
+            </table>
+        </div>
+    </div>    
         
-      }
-      google.maps.event.addDomListener(window, 'load', initialize);
-</script>
-  
 <script type="text/javascript">
+
     function toggle(tag_id)
     {
         a=document.getElementById('dataset_a'+tag_id);
@@ -231,9 +286,7 @@
             }
         });
     }
-
-</script>
-<script> 
+ 
 $(document).ready(function(){
     $(".calc_button").click(function() {
         var ids= $('.variables:checked').map(function(){ return this.id;}).get();
@@ -296,28 +349,15 @@ $(document).ready(function(){
     });
 
 
-    $('#map_icon').click( function() {
-        gmap=document.getElementById('map');
-        
-        if (gmap.style.display=='none')
-        {
-            gmap.style.display='block';
-        }
-        else
-        {
-            gmap.style.display='none';
-        }
-        var center = map.getCenter();
-        google.maps.event.trigger(map,'resize');
-        map.setCenter(center);
-    });
+   
     $(".draggable").draggable({
         revert: true,
         help: "clone",
         cursor: "crosshair",
         cursorAt: {left: 5},
     });
-    $(".droppable").droppable({
+   
+ $(".droppable").droppable({
         zIndex:2,
         drop: function (event,ui){
             var draggableId=ui.draggable.attr("id");
@@ -327,8 +367,8 @@ $(document).ready(function(){
             var s = document.getElementById("s_text_input").value;
             var e = document.getElementById("e_text_input").value;
             var w = document.getElementById("w_text_input").value;
-            var plot_type_selector = document.getElementById("plot_type");
-            var plot_type=document.getElementById("plot_type_input").value;
+            var plot_type=$('#plotTypeSelection').val();
+
             var myfiletokens = draggableId.split('_');
             var myfileid = myfiletokens[1];
             var myfile = document.getElementById(myfileid).innerHTML;
@@ -358,20 +398,21 @@ $(document).ready(function(){
                     }
                 });
             }
-
-            $.ajax({url:'http://emily.llnl.gov:8000/plot/boxfill',
-                data:{"n":n,"s":s,"e":e,"w":w,"fnm":myfile,"var":myvar}, 
+		
+	    $.ajax({url:'http://emily.llnl.gov:8000/plot/boxfill',
+                data:{"n":n,"s":s,"e":e,"w":w,"fnm":myfile,"var":myvar},
                 type:'GET',
-                datatype:'json', 
+                datatype:'json',
                 success:function(data){
                     png=data["png"];
                     event.target.innerHTML='<img src='+png+' style="height:500px;width:500px;"/>';
                     },
                 error: function(){alert('ERROR: unable to generate plot.');}
             });
+
+
         }
     });
-
 
 	
     $("#flip2").click(function(){
@@ -469,156 +510,124 @@ $(document).ready(function(){
         }
    });
 });
+
+
+$('#plotTypeSelection').change(function (e) {
+                setPlotType();
+            });
+
+    var pv = { pipeline: null, sources: null, files: null},
+    fetchDataQueueSize = 0;
+    $("#loading").hide();
+    pv.connection = { sessionURL: "ws://localhost:8080/ws"};
+    connect();
+
+    function connect() {
+        if(location.protocol == "http:") {
+            pv.connection.sessionURL = pv.connection.sessionURL.replace("wss:","ws:");
+        }
+
+        vtkWeb.connect(pv.connection, function(connectionData) {
+            pv.connection = connectionData;
+            createViewport();
+        }, function(code,reason){
+            $(".loading").hide();
+            console.log(reason);
+        });
+    }
+
+    function createViewport() {
+        $(".viewport-container").empty();
+        pv.viewport = vtkWeb.createViewport({session: pv.connection.session});
+        pv.viewport.bind(".viewport-container");
+    }
+
+    function initRender() {
+        if (pv.connection && pv.connection.session) {
+            pv.connection.session.call("vtk:initRender").then(function(res) {
+            	console.log(res);
+            	pv.viewport.render();
+            });
+        }
+    }
+
+    function setPlotType(){
+        if (pv.connection && pv.connection.session) {
+            var selected = $('#plotTypeSelection').val();
+	    pv.connection.session.call("vtk:is_initRender").then(function(res) {
+	    	if (res){
+		    pv.connection.session.call("vtk:setPlotType",selected).then(function(res){
+                        console.log("setPlotType: ready to run stillRender");
+                        pv.viewport.render();
+	    	    });
+	        }
+	        else
+	        {
+	    	    pv.connection.session.call("vtk:setPlotType",selected).then(function(res){
+                        console.log("Calling setPlotType: ready to run initRender");
+                        initRender();
+	            });
+	        }
+	    });
+        }
+    }
+            
+    $(window).resize(function() {
+        $(".splitter").height(window.innerHeight - 35);
+        $(".control-panel").height(window.innerHeight - 35);
+    }).trigger('resize');
+
+    function updateView() {
+        if(pv.viewport) {
+            pv.viewport.invalidateScene();
+        }
+    }
+
+    function stop() {
+        if(pv.hasOwnProperty('connection') && pv.connection.session) {
+            pv.viewport.unbind();
+            vtkWeb.stop(pv.connection);
+            pv = {};
+        }
+    }
+
+    var container = $(".viewport-container");
+
+    container.bind('mouse', function(evt){
+        evt.preventDefault();
+        var vtkWeb_event = {
+            action: evt.action,
+            charCode: evt.charCode,
+            altKey: evt.altKey,
+            ctrlKey: evt.ctrlKey,
+            shiftKey: evt.shiftKey,
+            metaKey: evt.metaKey,
+            buttonLeft: (evt.current_button === 1 ? true : false),
+            buttonMiddle: (evt.current_button === 2 ? true : false),
+            buttonRight: (evt.current_button === 3 ? true : false)
+            },
+            elem_position = $(evt.delegateTarget).offset(),
+            pointer = {
+                    x : (evt.pageX - elem_position.left),
+                    y : (evt.pageY - elem_position.top)
+            };
+
+        vtkWeb_event.x = pointer.x;
+        vtkWeb_event.y = pointer.y;
+
+        action_pending = true;
+        pv.connection.session.call("vtk:mouseInteraction", vtkWeb_event).then(function (res) {
+            if (res !== null) {
+                action_pending = false;
+                console.log(res);
+                $("#data").text(res);
+            }
+        });
+    });
+
+
+
 </script>
-</head>
-<body>
-    <div id=top_banner><h1>UV-CDAT Live</h1>
-</div>
-<div id=top_link>
-    <text>Welcome, {{user}} | </text>
 
-    <a href="/logout/">Logout</a>
-</div>
-
-<div id=content>
-
-    <div id=left1>
-        <div id=dataset_label>Dataset</div>
-        <div id=dataset_div>
-            <table>
-                {% for myfile in dataset %}
-                <tr>
-                    <td>
-                        <a id=dataset_a{{myfile.id}} href="javascript:toggle('{{myfile.id}}');"><img src='{{STATIC_URL}}img/folder_blue_open.png'/></a>
-                        <a id=dataset_import{{myfile.id}} href="javascript:import_var('{{myfile.id}}')"><img src='{{STATIC_URL}}img/save.png' width=15px/></a>
-                    </td>
-                    <td style="word-break: break-all">
-                        <a id={{myfile.id}} href="javascript:downloadFile('{{myfile.file}}','{{myfile.id}}')">{{myfile.file}}</a>
-                        <ul id=dataset_ul{{myfile.id}} style="display:none">
-                            {% for myvar in myfile.var %}
-                            <li id={{myvar}} >
-                                <input id={{myvar}} type=checkbox value={{myvar}} class={{myfile.id}}>
-                                <label for={{myvar}} id=label_{{myfile.id}}_{{myvar}} class="draggable">{{myvar}}</label>
-                            </li> 
-                            {% endfor %}
-                        </ul>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-    </div>
-    <div id=right>
-        <div id=plot_header>
-        <table>
-              <tr>
-                  <td>
-                      Plot Display Options:
-                    <label id=input_label>Row<label>
-                    <select id="row">
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    </select>
-                    <label id=input_label>Col</label>
-                    <select id="col">
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-        </div>
-        <table id=plot_panel width="100%">
-            <tr id=plot_row1>
-                <td id=plot_1_1 class="droppable"></td> 
-                <td id=plot_1_2 class="droppable"></td>
-            </tr>
-            <tr id=plot_row2>
-                <td id=plot_2_1 class="droppable"></td>
-                <td id=plot_2_2 class="droppable"></td>
-            </tr>
-        </table>
-    </div>
-
-  </div>
-    <div id=left2>
-        <div id=var_panel_label>
-            <img class=var_icon src={{STATIC_URL}}img/delete.png onclick="deleteSelectedVariables()"/>
-            <img class=var_icon src={{STATIC_URL}}img/checked.png onclick="checkAllVariables()"/>
-            <img class=var_icon src={{STATIC_URL}}img/edit.png onclick="editSelectedVariables()"/>
-            <img class=var_icon src={{STATIC_URL}}img/file_save.png/>
-            <img class=var_icon src={{STATIC_URL}}img/preferences.png onclick="resetVariables()"/>
-        </div>
-        <div id=coord_div>
-            <img id=map_icon src="{{STATIC_URL}}img/map-icon.png" />
-            <label id="input_label">N:</label>
-            <input id="n_text_input" type="text" value="-90">
-            <label id="input_label">S:</label>
-            <input id="s_text_input" type="text" value="90">
-            <label id="input_label">E:</label>
-            <input id="e_text_input" type="text" value="0">
-            <label id="input_label">W:</label>
-            <input id="w_text_input" type="text" value="180">
-            <button id="delete-button">Reset</button>
-
-        </div>
-        <div id="map"  style=" height: 200px; width: 100%;display: none"></div>
-        <div id=plot_option>
-            <span id="plot_type_selection">Plot Type </text>
-            <input id="plot_type_input" type="text" value="boxfill">
-        </div>
-        <div id="var_panel">
-            <table id="var_table">
-            </table>
-        </div>
-        <div id="calculator">
-            <table id="calc_table1">
-                <tr><td colspan=6><input type=text id=array_name placeholder="Result Array Name"/></td></tr>
-                <tr><td colspan=6><input type=text id=calc_command placeholder="Enter a CDAT command"/></td></tr>
-                <tr>
-                    <td><button class=calc_button id=sin_btn>sin</button></td>
-                    <td><button class=calc_button>asin</button></td>
-                    <td><button class=calc_button>x^2</button></td>
-                    <td><button class=calc_button>ln</button></td>
-                    <td><button class=calc_button>x<y</button></td>
-                    <td><button class=calc_button>+</button></td>
-                </tr>
-                <tr>
-                    <td><button class=calc_button>cos</button></td>
-                    <td><button class=calc_button>acos</button></td>
-                    <td><button class=calc_button>sqrt</button></td>
-                    <td><button class=calc_button>log10</button></td>
-                    <td><button class=calc_button>x>y</button></td>
-                    <td><button class=calc_button>-</button></td>
-                </tr>
-                <tr>
-                    <td><button class=calc_button>tan</button></td>
-                    <td><button class=calc_button>atan</button></td>
-                    <td><button class=calc_button>1/x</button></td>
-                    <td><button class=calc_button>exp</button></td>
-                    <td><button class=calc_button>x<>y</button></td>
-                    <td><button class=calc_button id=multiply>*</button></td>
-                </tr>
-                <tr>
-                    <td><button class=calc_button>abs</button></td>
-                    <td><button class=calc_button>std</button></td>
-                    <td><button class=calc_button>x^y</button></td>
-                    <td><button class=calc_button>10^x</button></td>
-                    <td><button class=calc_button>x==y</button></td>
-                    <td><button class=calc_button>/</button></td>
-                </tr>
-            </table>
-            <table id="calc_table2">
-                <tr>
-                    <td><button class=calc_button>Regrid</button></td>
-                    <td><button class=calc_button>Mask</button></td>
-                    <td><button class=calc_button>Get_Mask</button></td>
-                    <td><button class=calc_button>Grower</button></td>
-                </tr>
-                <tr><td colspan=2><input type=checkbox id=replace_invalid_result checked /><label for=replace_invalid_result>Replace Invalid Results</label></td>
-                <td colspan=2><input type=text id=invalid_replacement_value placeholder="Replacement Value"/></td></tr>
-            </table>
-        </div>
-    </div>
 </body>
 </html>

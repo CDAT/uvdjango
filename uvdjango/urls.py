@@ -8,6 +8,7 @@ if not settings.configured:
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+                       url("",include('django_socketio.urls')),
                        (r'^media/(?P<path>.*)$','django.views.static.serve',
                                     {'document_root': settings.MEDIA_ROOT}),
                        (r'', include('home.urls')),

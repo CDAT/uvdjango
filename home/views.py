@@ -26,6 +26,10 @@ if not settings.configured:
 import tempfile,zipfile
 import vcs
 
+def testing(request):
+    return render(request, "test.html")
+
+
 def downloadFile(request):
     if not request.user.is_authenticated():
         # send them to the login page, with a ?redir= on the end pointing back to this page
